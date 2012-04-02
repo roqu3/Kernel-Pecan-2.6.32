@@ -1,7 +1,7 @@
 /*
  * Automatically generated C config: don't edit
- * Linux kernel version: 2.6.32.9
- * Sun Apr  1 22:31:28 2012
+ * Linux kernel version: 2.6.32.11
+ * Sun Apr  1 23:20:17 2012
  */
 #define AUTOCONF_INCLUDED
 #define CONFIG_VIDEO_V4L1_COMPAT 1
@@ -498,9 +498,9 @@
 #define CONFIG_NETFILTER_XT_MATCH_HELPER 1
 #define CONFIG_CPU_32v6K 1
 #define CONFIG_CPU_HAS_ASID 1
+#define CONFIG_TRACING_SUPPORT 1
 #define CONFIG_BCM4329_MODULE 1
 #define CONFIG_MTD_NAND_IDS 1
-#define CONFIG_TRACING_SUPPORT 1
 #define CONFIG_NLS_ISO8859_1 1
 #define CONFIG_NET_ETHERNET 1
 #define CONFIG_NETFILTER_XT_MATCH_LENGTH 1

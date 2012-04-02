@@ -2250,6 +2250,7 @@
 0x00000000	sock_kfree_s	vmlinux	EXPORT_SYMBOL
 0x00000000	snd_pcm_format_little_endian	vmlinux	EXPORT_SYMBOL
 0x00000000	crc32_le	vmlinux	EXPORT_SYMBOL
+0x00000000	lcm	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	scatterwalk_map_and_copy	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	__task_pid_nr_ns	vmlinux	EXPORT_SYMBOL
 0x00000000	ethtool_op_get_link	vmlinux	EXPORT_SYMBOL

@@ -947,7 +947,7 @@ static noinline long btrfs_ioctl_clone(struct file *file, unsigned long srcfd,
 	 */
 
 	/* the destination must be opened for writing */
-	if (!(file->f_mode & FMODE_WRITE))
+	if (!(file->f_mode & FMODE_WRITE) || (file->f_flags & O_APPEND))
 		return -EINVAL;
 
 	ret = mnt_want_write(file->f_path.mnt);
@@ -959,10 +959,15 @@ static noinline long btrfs_ioctl_clone(struct file *file, unsigned long srcfd,
 		ret = -EBADF;
 		goto out_drop_write;
 	}
+
 	src = src_file->f_dentry->d_inode;
 
 	ret = -EINVAL;
 	if (src == inode)
+		goto out_fput;
+
+	/* the src must be open for reading */
+	if (!(src_file->f_mode & FMODE_READ))
 		goto out_fput;
 
 	ret = -EISDIR;
@@ -995,7 +1000,7 @@ static noinline long btrfs_ioctl_clone(struct file *file, unsigned long srcfd,
 
 	/* determine range to clone */
 	ret = -EINVAL;
-	if (off >= src->i_size || off + len > src->i_size)
+	if (off + len > src->i_size || off + len < off)
 		goto out_unlock;
 	if (len == 0)
 		olen = len = src->i_size - off;

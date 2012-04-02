@@ -941,7 +941,7 @@ void disable_local_APIC(void)
 	unsigned int value;
 
 	/* APIC hasn't been mapped yet */
-	if (!apic_phys)
+	if (!x2apic_mode && !apic_phys)
 		return;
 
 	clear_local_APIC();
@@ -1664,8 +1664,10 @@ int __init APIC_init_uniprocessor(void)
 	}
 #endif
 
+#ifndef CONFIG_SMP
 	enable_IR_x2apic();
 	default_setup_apic_routing();
+#endif
 
 	verify_local_APIC();
 	connect_bsp_APIC();

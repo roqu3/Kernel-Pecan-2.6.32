@@ -1264,6 +1264,12 @@ static void sched_avg_update(struct rq *rq)
 	s64 period = sched_avg_period();
 
 	while ((s64)(rq->clock - rq->age_stamp) > period) {
+		/*
+		 * Inline assembly required to prevent the compiler
+		 * optimising this loop into a divmod call.
+		 * See __iter_div_u64_rem() for another example of this.
+		 */
+		asm("" : "+rm" (rq->age_stamp));
 		rq->age_stamp += period;
 		rq->rt_avg /= 2;
 	}
@@ -1714,9 +1720,6 @@ static void update_shares_locked(struct rq *rq, struct sched_domain *sd)
 
 static void update_h_load(long cpu)
 {
-	if (root_task_group_empty())
-		return;
-
 	walk_tg_tree(tg_load_down, tg_nop, (void *)cpu);
 }
 
@@ -2119,12 +2122,10 @@ migrate_task(struct task_struct *p, int dest_cpu, struct migration_req *req)
 
 	/*
 	 * If the task is not on a runqueue (and not running), then
-	 * it is sufficient to simply update the task's cpu field.
+	 * the next wake-up will properly place the task.
 	 */
-	if (!p->se.on_rq && !task_running(rq, p)) {
-		set_task_cpu(p, dest_cpu);
+	if (!p->se.on_rq && !task_running(rq, p))
 		return 0;
-	}
 
 	init_completion(&req->done);
 	req->task = p;
@@ -6697,7 +6698,9 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
 	int ret;
 	cpumask_var_t mask;
 
-	if (len < cpumask_size())
+	if ((len * BITS_PER_BYTE) < nr_cpu_ids)
+		return -EINVAL;
+	if (len & (sizeof(unsigned long)-1))
 		return -EINVAL;
 
 	if (!alloc_cpumask_var(&mask, GFP_KERNEL))
@@ -6705,10 +6708,12 @@ SYSCALL_DEFINE3(sched_getaffinity, pid_t, pid, unsigned int, len,
 
 	ret = sched_getaffinity(pid, mask);
 	if (ret == 0) {
-		if (copy_to_user(user_mask_ptr, mask, cpumask_size()))
+		size_t retlen = min_t(size_t, len, cpumask_size());
+
+		if (copy_to_user(user_mask_ptr, mask, retlen))
 			ret = -EFAULT;
 		else
-			ret = cpumask_size();
+			ret = retlen;
 	}
 	free_cpumask_var(mask);
 
@@ -7191,6 +7196,9 @@ static int __migrate_task(struct task_struct *p, int src_cpu, int dest_cpu)
 	/* Already moved. */
 	if (task_cpu(p) != src_cpu)
 		goto done;
+	/* Waking up, don't get in the way of try_to_wake_up(). */
+	if (p->state == TASK_WAKING)
+		goto fail;
 	/* Affinity changed (again). */
 	if (!cpumask_test_cpu(dest_cpu, &p->cpus_allowed))
 		goto fail;
