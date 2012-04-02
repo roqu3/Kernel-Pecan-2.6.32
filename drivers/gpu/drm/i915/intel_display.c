@@ -1402,6 +1402,7 @@ static void igdng_enable_pll_edp (struct drm_crtc *crtc)
 	dpa_ctl = I915_READ(DP_A);
 	dpa_ctl |= DP_PLL_ENABLE;
 	I915_WRITE(DP_A, dpa_ctl);
+	POSTING_READ(DP_A);
 	udelay(200);
 }
 
@@ -1952,6 +1953,9 @@ static void intel_crtc_dpms(struct drm_crtc *crtc, int mode)
 	struct intel_crtc *intel_crtc = to_intel_crtc(crtc);
 	int pipe = intel_crtc->pipe;
 	bool enabled;
+
+	if (intel_crtc->dpms_mode == mode)
+		return;
 
 	dev_priv->display.dpms(crtc, mode);
 
@@ -3999,7 +4003,7 @@ static void intel_crtc_init(struct drm_device *dev, int pipe)
 	}
 
 	intel_crtc->cursor_addr = 0;
-	intel_crtc->dpms_mode = DRM_MODE_DPMS_OFF;
+	intel_crtc->dpms_mode = -1;
 	drm_crtc_helper_add(&intel_crtc->base, &intel_helper_funcs);
 
 	intel_crtc->busy = false;
