@@ -1557,6 +1557,7 @@
 0x00000000	xfrm_init_state	vmlinux	EXPORT_SYMBOL
 0x00000000	crypto_init_spawn2	vmlinux	EXPORT_SYMBOL_GPL
 0x00000000	xfrm_user_policy	vmlinux	EXPORT_SYMBOL
+0x00000000	netif_notify_peers	vmlinux	EXPORT_SYMBOL
 0x00000000	netif_napi_add	vmlinux	EXPORT_SYMBOL
 0x00000000	skb_split	vmlinux	EXPORT_SYMBOL
 0x00000000	input_grab_device	vmlinux	EXPORT_SYMBOL

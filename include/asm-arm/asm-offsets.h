@@ -45,7 +45,7 @@
 #define MM_CONTEXT_ID 332 /* offsetof(struct mm_struct, context.id)	@ */
 
 #define VMA_VM_MM 0 /* offsetof(struct vm_area_struct, vm_mm)	@ */
-#define VMA_VM_FLAGS 20 /* offsetof(struct vm_area_struct, vm_flags)	@ */
+#define VMA_VM_FLAGS 24 /* offsetof(struct vm_area_struct, vm_flags)	@ */
 
 #define VM_EXEC 4 /* VM_EXEC	@ */
 

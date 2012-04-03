@@ -945,7 +945,7 @@ _scsih_build_scatter_gather(struct MPT2SAS_ADAPTER *ioc,
 	u32 chain_offset;
 	u32 chain_length;
 	u32 chain_flags;
-	u32 sges_left;
+	int sges_left;
 	u32 sges_in_segment;
 	u32 sgl_flags;
 	u32 sgl_flags_last_element;
@@ -966,7 +966,7 @@ _scsih_build_scatter_gather(struct MPT2SAS_ADAPTER *ioc,
 
 	sg_scmd = scsi_sglist(scmd);
 	sges_left = scsi_dma_map(scmd);
-	if (!sges_left) {
+	if (sges_left < 0) {
 		sdev_printk(KERN_ERR, scmd->device, "pci_map_sg"
 		" failed: request for %d bytes!\n", scsi_bufflen(scmd));
 		return -ENOMEM;
@@ -3145,7 +3145,7 @@ _scsih_smart_predicted_fault(struct MPT2SAS_ADAPTER *ioc, u16 handle)
 	/* insert into event log */
 	sz = offsetof(Mpi2EventNotificationReply_t, EventData) +
 	     sizeof(Mpi2EventDataSasDeviceStatusChange_t);
-	event_reply = kzalloc(sz, GFP_KERNEL);
+	event_reply = kzalloc(sz, GFP_ATOMIC);
 	if (!event_reply) {
 		printk(MPT2SAS_ERR_FMT "failure at %s:%d/%s()!\n",
 		    ioc->name, __FILE__, __LINE__, __func__);
